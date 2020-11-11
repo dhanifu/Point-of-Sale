@@ -31,7 +31,8 @@ return [
     |
     */
 
-    'lifetime' => env('SESSION_LIFETIME', 120),
+    // Session jadi 1 Hari
+    'lifetime' => 1 * (60 * 24),
 
     'expire_on_close' => false,
 
