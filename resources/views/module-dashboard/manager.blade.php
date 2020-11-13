@@ -7,9 +7,9 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="callout callout-info">
-                                    <small class="text-muted">Omset Harian</small>
+                                    <small class="text-muted">Omset</small>
                                     <br>
-                                    <strong class="h4">Rp 0</strong>
+                                    <strong class="h4">Rp {{number_format($total)}}</strong>
                                 </div>
                             </div>
                             <div class="col-md-6">

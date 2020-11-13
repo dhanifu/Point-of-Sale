@@ -22,7 +22,12 @@ Route::prefix('manager')->name('manager.')->middleware('role:manager')->group(fu
     Route::get('home', 'HomeController@home')->name('home');
 
     Route::prefix('product-report')->name('product-report.')->group(function(){
-        
+        Route::get('/', 'ReportController@indexProduct')->name('index');
+    });
+
+    Route::prefix('transaction-report')->name('transaction-report.')->group(function(){
+        Route::get('/', 'ReportController@indexTransaction')->name('index');
+        Route::get('/pdf', 'ReportController@pdfTransaction')->name('pdf');
     });
 });
 

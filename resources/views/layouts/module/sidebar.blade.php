@@ -9,12 +9,12 @@
         @role('manager')
         <li class="nav-title">REPORT</li>
         <li class="nav-item">
-            <a class="nav-link" href="#">
+            <a class="nav-link" href="{{route('manager.product-report.index')}}">
                 <i class="nav-icon icon-drop"></i> Product Report
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#">
+            <a class="nav-link" href="{{route('manager.transaction-report.index')}}">
                 <i class="nav-icon icon-drop"></i> Transaction Report
             </a>
         </li>

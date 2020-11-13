@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use PDF;
 use Auth;
 use App\User;
 use App\Transaction;
@@ -78,6 +79,27 @@ class ReportController extends Controller
         return view('reports.transaction.index', [
             'users' => $users,
             'transactions' => $transactions,
+            'total' => $this->countTotal($transactions)
         ]);
+    }
+
+    public function pdfTransaction(Request $request)
+    {
+        $start_date = Carbon::parse($request->start_date)->format('Y-m-d').' 00:00:01';
+        $end_date = Carbon::parse($request->end_date)->format('Y-m-d').' 23:59:59';
+        $user_id = $request->user_id;
+
+        $transaction = Transaction::whereBetween('created_at', [$start_date,$end_date])->where('user_id', $user_id)
+                                ->with('user', 'product')->get();
+        $user = User::find($user_id);
+        
+        $pdf = PDF::setOptions(['dpi'=>150, 'defaultFont'=>'sans-serif'])
+                ->loadView('reports.transaction.pdf', [
+                        'transaction'=>$transaction,
+                        'user'=>$user,
+                        'start_date'=>$request->start_date,
+                        'end_date'=>$request->end_date
+                    ]);
+        return $pdf->stream();
     }
 }
