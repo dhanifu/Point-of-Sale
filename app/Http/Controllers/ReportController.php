@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use PDF;
 use Auth;
+use App\Brand;
+use App\Distributor;
+use App\Product;
 use App\User;
 use App\Transaction;
 
@@ -16,28 +19,33 @@ class ReportController extends Controller
         $this->middleware('auth');
     }
 
-    private function countTotal($transactions)
+    private function countTotal($querys, $field)
     {
         $total = 0;
-        if ($transactions->count() > 0) {
-            $sub_total = $transactions->pluck('total_harga')->all();
+        if ($querys->count() > 0) {
+            $sub_total = $querys->pluck($field)->all();
             $total = array_sum($sub_total);
         }
 
         return $total;
     }
-    private function countItem($transaction)
+    private function countItem($query, $field)
     {
         $total = 0;
-        if ($transaction->count() > 0) {
-            foreach ($transaction as $t) {
-                $jml_beli = $t->pluck('jumlah_beli')->all();
+        if ($query->count() > 0) {
+            foreach ($query as $t) {
+                $jml_beli = $t->pluck($field)->all();
                 $total = array_sum($jml_beli);
             }
         }
-        dd($total);
 
         return $total;
+    }
+    private function countProduct($products)
+    {
+        $product = $products->count();
+        
+        return $product;
     }
     private function countKd($kd_transaksi, $user_id)
     {
@@ -47,10 +55,119 @@ class ReportController extends Controller
     }
 
 
-    public function indexProduct()
+    public function indexProduct(Request $request)
     {
-        return view('reports.product.index');
+        $products = Product::with('brand', 'distributor');
+        $brands = Brand::orderBy('nama_brand', 'ASC')->get();
+        $distributors = Distributor::orderBy('nama_distributor')->get();
+
+        // if (!empty($request->brand_id)) {
+        //     $products = $products->where('brand_id', $request->brand_id);
+        // }elseif (!empty($request->distributor_id)) {
+        //     $products = $products->where('distributor_id', $request->distributor_id);
+        // }else{
+        //     $products = $products;
+        // }
+
+        if (!empty($request->brand_id) && !empty($request->distributor_id)) {
+            $products = $products->where('brand_id', $request->brand_id)->where('distributor_id', $request->distributor_id);
+        }elseif (!empty($request->brand_id)) {
+            $products = $products->where('brand_id', $request->brand_id);
+        }elseif (!empty($request->distributor_id)) {
+            $products = $products->where('distributor_id', $request->distributor_id);
+        }else{
+            $products = $products;
+        }
+
+        if ($request->urutan == "terbanyak") {
+            $products = $products->orderBy('stok_barang', "DESC");
+        } elseif ($request->urutan = "tersedikit") {
+            $products = $products->orderBy('stok_barang', "ASC");
+        }else {
+            $products = $products;
+        }
+
+        if (!empty($request->start_date) && !empty($request->end_date)) {
+            $this->validate($request, [
+                'start_date' => 'nullable|date',
+                'end_date' => 'nullable|date'
+            ]);
+
+            $start_date = Carbon::parse($request->start_date)->format('Y-m-d').' 00:00:01';
+            $end_date = Carbon::parse($request->end_date)->format('Y-m-d').' 23:59:59';
+
+            $products = $products->whereBetween('created_at', [$start_date,$end_date])->get();
+        } else {
+            $products = $products->orderBy('created_at','DESC')->get();
+        }
+        
+        return view('reports.product.index', [
+            'products'=>$products,
+            'brands'=>$brands,
+            'distributors'=>$distributors,
+            'totalItem'=>$this->countProduct($products)
+        ]);
     }
+
+    public function pdfProduct(Request $request)
+    {
+        $start_date = Carbon::parse($request->start_date)->format('Y-m-d').' 00:00:01';
+        $end_date = Carbon::parse($request->end_date)->format('Y-m-d').' 23:59:59';
+        if(!empty($request->urutan) && $request->urutan == "terbanyak"){
+            $urutan = "DESC";
+        } elseif (!empty($request->urutan) && $request->urutan == "tersedikit") {
+            $urutan = "ASC";
+        }else{
+            $urutan = "ASC";
+        }
+
+        if(!empty($request->brand_id) && !empty($request->distributor_id)){
+            $product = Product::with('brand','distributor')->whereBetween('created_at', [$start_date,$end_date])
+                            ->where('brand_id', $request->brand_id)->where('distributor_id',$request->distributor_id)
+                            ->orderBy('stok_barang', $urutan)->get();
+            $brand = Brand::where('id',$request->brand_id)->first();
+            $distributor = Distributor::where('id',$request->distributor_id)->first();
+        }elseif (!empty($request->brand_id)) {
+            $product = Product::with('brand','distributor')->whereBetween('created_at', [$start_date,$end_date])
+                            ->where('brand_id', $request->brand_id)
+                            ->orderBy('stok_barang', $urutan)->get();
+            $brand = Brand::where('id',$request->brand_id)->first();
+            $distributor = "-";
+        }elseif (!empty($request->distributor_id)) {
+            $product = Product::with('brand','distributor')->whereBetween('created_at', [$start_date,$end_date])
+                            ->where('distributor_id',$request->distributor_id)
+                            ->orderBy('stok_barang', $urutan)->get();
+            $brand = "-";
+            $distributor = Distributor::where('id',$request->distributor_id)->first();
+        }else{
+            $product = Product::with('brand','distributor')->whereBetween('created_at', [$start_date,$end_date])
+                            ->orderBy('stok_barang', $urutan)->get();
+            $brand = "-";
+            $distributor = "-";
+        }
+
+        // dd($product, $brand, $distributor);
+        // return view('reports.product.pdf', [
+        //     'product' => $product,
+        //     'start_date' => $request->start_date,
+        //     'end_date' => $request->end_date,
+        //     'brand' => $brand,
+        //     'distributor' => $distributor,
+        // ]);
+        $pdf = PDF::setOptions(['dpi'=>150, 'defaultFont'=>'sans-serif'])
+                ->loadView('reports.product.pdf', [
+                    'product' => $product,
+                    'start_date' => $request->start_date,
+                    'end_date' => $request->end_date,
+                    'brand' => $brand,
+                    'distributor' => $distributor,
+                ]);
+        return $pdf->stream();
+    }
+
+
+
+
 
     // Transaction Report
     public function indexTransaction(Request $request)
@@ -79,7 +196,7 @@ class ReportController extends Controller
         return view('reports.transaction.index', [
             'users' => $users,
             'transactions' => $transactions,
-            'total' => $this->countTotal($transactions)
+            'total' => $this->countTotal($transactions, 'total_harga')
         ]);
     }
 

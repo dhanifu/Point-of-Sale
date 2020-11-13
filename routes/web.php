@@ -23,6 +23,7 @@ Route::prefix('manager')->name('manager.')->middleware('role:manager')->group(fu
 
     Route::prefix('product-report')->name('product-report.')->group(function(){
         Route::get('/', 'ReportController@indexProduct')->name('index');
+        Route::get('/pdf', 'ReportController@pdfProduct')->name('pdf');
     });
 
     Route::prefix('transaction-report')->name('transaction-report.')->group(function(){
