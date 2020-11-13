@@ -58,10 +58,6 @@ class TransactionController extends Controller
         $total_harga = $request->jumlah_beli * $product->harga_barang;
         $sisa_stok = $product->stok_barang - $request->jumlah_beli;
         
-        $product->update([
-            'stok_barang' => $sisa_stok
-        ]);
-        
         Transaction::create([
             'kd_transaksi' => $kode_transaksi,
             'product_id' => $request->product_id,
@@ -69,6 +65,10 @@ class TransactionController extends Controller
             'jumlah_beli' => $request->jumlah_beli,
             'total_harga' => $total_harga,
             'tanggal_beli' => date('Y-m-d')
+        ]);
+        
+        $product->update([
+            'stok_barang' => $sisa_stok
         ]);
 
         return redirect()->back()->with('success', 'transaksi berhasil');
@@ -100,16 +100,17 @@ class TransactionController extends Controller
         $total_harga = $request->jumlah_beli * $product->harga_barang;
         $sisa_stok = $product->stok_barang - $request->jumlah_beli;
         
-        $product->update([
-            'stok_barang' => $sisa_stok
-        ]);
-        
         Transaction::create([
             'kd_transaksi' => $kode_transaksi,
             'product_id' => $request->product_id,
             'user_id' => $user_id,
             'jumlah_beli' => $request->jumlah_beli,
-            'total_harga' => $total_harga
+            'total_harga' => $total_harga,
+            'tanggal_beli' => date('Y-m-d')
+        ]);
+        
+        $product->update([
+            'stok_barang' => $sisa_stok
         ]);
 
         return redirect()->back()->with('success', 'transaksi berhasil');

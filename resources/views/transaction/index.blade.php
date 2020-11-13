@@ -96,12 +96,10 @@
                                 <select name="product_id" class="form-control" id="product_id">
                                     <option data-harga="kosong">Pilih</option>
                                     @foreach ($products as $item)
-                                        <optgroup label="{{$item->brand->nama_brand}}">
-                                            <option value="{{$item->id}}" data-harga="{{$item->harga_barang}}"
-                                                {{ old('product_id') == $item->id ? 'selected':'' }}>
-                                                {{$item->nama_barang}}
-                                            </option>
-                                        </optgroup>
+                                        <option value="{{$item->id}}" data-harga="{{$item->harga_barang}}"
+                                            {{ old('product_id') == $item->id ? 'selected':'' }}>
+                                            {{$item->nama_barang}}
+                                        </option>
                                     @endforeach
                                 </select>
                                 <p class="text-danger">{{ $errors->first('nama_brand') }}</p>

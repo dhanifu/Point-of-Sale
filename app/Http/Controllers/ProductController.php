@@ -49,7 +49,6 @@ class ProductController extends Controller
             'nama_barang' => 'required|string',
             'brand_id' => 'required|exists:brands,id',
             'distributor_id' => 'required|exists:distributors,id',
-            'tanggal_masuk' => 'required|date',
             'harga_barang' => 'required|integer',
             'stok_barang' => 'required|integer',
             'keterangan' => 'required|string'
@@ -59,7 +58,7 @@ class ProductController extends Controller
             'nama_barang' => $request->nama_barang,
             'brand_id' => $request->brand_id,
             'distributor_id' => $request->distributor_id,
-            'tanggal_masuk' => $request->tanggal_masuk,
+            'tanggal_masuk' => date('Y-m-d'),
             'harga_barang' => $request->harga_barang,
             'stok_barang' => $request->stok_barang,
             'keterangan' => $request->keterangan,

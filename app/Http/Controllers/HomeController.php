@@ -18,6 +18,17 @@ class HomeController extends Controller
         $this->middleware('auth');
     }
 
+    private function countTotal($transactions)
+    {
+        $total = 0;
+        if ($transactions->count() > 0) {
+            $sub_total = $transactions->pluck('total_harga')->all();
+            $total = array_sum($sub_total);
+        }
+
+        return $total;
+    }
+
     /**
      * Show the application dashboard.
      *
@@ -26,6 +37,7 @@ class HomeController extends Controller
     public function home()
     {
         $id = Auth::user()->id;
+        $transaction = Transaction::orderBy('created_at', 'DESC')->get();
         if (Auth::user()->hasRole('kasir')) {
             $transHari = Transaction::where('tanggal_beli',date('Y-m-d'))->where('user_id',$id)->count();
             $omsetHari = Transaction::where('tanggal_beli',date('Y-m-d'))->where('user_id',$id)->sum('total_harga');
@@ -34,7 +46,7 @@ class HomeController extends Controller
         }elseif (Auth::user()->hasRole('admin')) {
             # code...
         }elseif (Auth::user()->hasRole('manager')) {
-            # code...
+            return view('home', ['total'=>$this->countTotal($transaction)]);
         }
         return view('home');
     }

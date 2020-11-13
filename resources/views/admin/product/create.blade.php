@@ -58,11 +58,6 @@
                                     <p class="text-danger">{{ $errors->first('distributor_id') }}</p>
                                 </div>
                                 <div class="form-group">
-                                    <label for="tanggal_masuk">Tanggal Masuk</label>
-                                    <input type="date" name="tanggal_masuk" class="form-control" value="{{ old('tanggal_masuk') }}" >
-                                    <p class="text-danger">{{ $errors->first('tanggal_masuk') }}</p>
-                                </div>
-                                <div class="form-group">
                                     <label for="harga_barang">Harga</label>
                                     <input type="number" name="harga_barang" class="form-control" value="{{ old('harga_barang') }}" >
                                     <p class="text-danger">{{ $errors->first('harga_barang') }}</p>
