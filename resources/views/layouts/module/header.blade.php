@@ -10,6 +10,12 @@
         <span class="navbar-toggler-icon"></span>
     </button>
     <ul class="nav navbar-nav ml-auto mr-3">
+        <li class="nav-item px-3">
+            <span id="tanggal"></span>
+        </li>
+        <li class="nav-item px-3">
+            <span id="jam"></span>:<span id="menit"></span>:<span id="detik"></span>
+        </li>
         <li class="nav-item dropdown">
             <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
                 aria-expanded="false">
@@ -32,3 +38,26 @@
         </li>
     </ul>
 </header>
+<script>
+    window.setTimeout("waktu()", 1000);
+ 
+    function waktu() {
+        var waktu = new Date();
+        setTimeout("waktu()", 1000);
+        document.getElementById("jam").innerHTML = waktu.getHours();
+        document.getElementById("menit").innerHTML = waktu.getMinutes();
+        document.getElementById("detik").innerHTML = waktu.getSeconds();
+    }
+    
+    arrbulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+    date = new Date();
+    millisecond = date.getMilliseconds();
+    detik = date.getSeconds();
+    menit = date.getMinutes();
+    jam = date.getHours();
+    hari = date.getDay();
+    tanggal = date.getDate();
+    bulan = date.getMonth();
+    tahun = date.getFullYear();
+    document.getElementById('tanggal').innerHTML = tanggal+" "+arrbulan[bulan]+" "+tahun
+</script>
