@@ -54,10 +54,14 @@
                                             <td>{{Auth::user()->name}}</td>
                                             <td>{{$r['tanggal_beli']}}</td>
                                             <td>
+                                                @if(date('Y-m-d') == $r['tanggal_beli'])
                                                 <button type="button" class="btn btn-sm btn-success" title="Beli produk lainnya"
                                                         onclick="document.location.href='{{route('kasir.transaction.add', $r['kd_transaksi'])}}'">
                                                     <i class="fa fa-plus"></i> More
                                                 </button>
+                                                @else
+                                                ~
+                                                @endif
                                             </td>
                                         </tr>
                                         @endwhile
@@ -97,8 +101,9 @@
                                     <option data-harga="kosong">Pilih</option>
                                     @foreach ($products as $item)
                                         <option value="{{$item->id}}" data-harga="{{$item->harga_barang}}"
+                                            data-stok="{{$item->stok_barang}}"
                                             {{ old('product_id') == $item->id ? 'selected':'' }}>
-                                            {{$item->nama_barang}}
+                                            {{$item->nama_barang}} (stok: {{$item->stok_barang}})
                                         </option>
                                     @endforeach
                                 </select>
@@ -123,8 +128,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" id="sumbit">Save</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </form>
         </div>
@@ -134,12 +139,24 @@
 
 @section('js')
     <script>
+        @if($errors->count() > 0)
+            $('#modalBuat').modal('show');
+        @endif
+
         $('select').change(function(){
             let harga = $(this).find(':selected').data('harga')
-            
+                stok = $(this).find(':selected').data('stok')
             $('#jumlah_beli').keyup(function(){
                 let jumlah_beli = $('#jumlah_beli').val()
+                let sisa_stok = parseInt(stok) - parseInt(jumlah_beli)
                 let total = parseInt(harga) * parseInt(jumlah_beli)
+                if (sisa_stok < 0) {
+                    $('#sumbit').hide()
+                    alert('Stok tidak mencukupi, hanya bisa membeli <= '+stok+" produk")
+                    let total = ""
+                }else{
+                    $('#sumbit').show()
+                }
 
                 if (harga == "kosong") {
                     total = ""
