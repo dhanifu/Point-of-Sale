@@ -38,7 +38,7 @@ class BrandController extends Controller
 
         Brand::create($request->except('_token'));
 
-        return redirect()->refresh()->with('success', 'Brand baru ditambahkan');
+        return redirect()->back()->with('success', 'Brand baru ditambahkan');
     }
 
     /**
@@ -60,7 +60,7 @@ class BrandController extends Controller
             'nama_brand' => $request->nama_brand,
         ]);
 
-        return redirect()->refresh()->with('success', 'Nama Brand diperbarui');
+        return redirect()->back()->with('success', 'Nama Brand diperbarui');
     }
 
     /**

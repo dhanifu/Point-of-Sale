@@ -180,7 +180,7 @@
             let modal = $(this)
 
             modal.find('.modal-body #brand_id').val(brand_id)
-            modal.find('.modal-body #nama_brand').val(nama_brand)
+            modal.find('.modal-body #edit_nama_brand').val(nama_brand)
         })
 
         function deleteData(product_id){

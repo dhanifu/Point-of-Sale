@@ -29,7 +29,7 @@ class TransactionController extends Controller
         // $transactions = DB::select("SELECT kd_transaksi FROM transactions GROUP BY kd_transaksi (SELECT * FROM transactions)");
         // dd($transactions);
         
-        $products = Product::orderBy('nama_barang', 'ASC')->get();
+        $products = Product::where('stok_barang', '>', 0)->orderBy('nama_barang', 'ASC')->get();
 
         $con = mysqli_connect('localhost','root','','dshop');
         $sql = mysqli_query($con, 'SELECT * FROM transactions WHERE user_id = '.Auth::user()->id.' GROUP BY kd_transaksi ORDER BY created_at DESC');
