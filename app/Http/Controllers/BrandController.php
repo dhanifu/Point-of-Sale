@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Brand;
+use App\Product;
 use Illuminate\Http\Request;
 
 class BrandController extends Controller
@@ -70,7 +71,8 @@ class BrandController extends Controller
      */
     public function destroy(Brand $brand)
     {
-        if ($brand->with('products')->count() == 0) {
+        $product = Product::join('brands', 'products.brand_id','=','brands.id')->count();
+        if ($product == 0) {
             $brand->delete();
             return redirect()->back()->with('success', 'Berhasil dihapus...');
         }

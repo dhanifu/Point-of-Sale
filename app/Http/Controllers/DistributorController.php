@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Distributor;
+use App\Product;
 use Illuminate\Http\Request;
 
 class DistributorController extends Controller
@@ -75,7 +76,9 @@ class DistributorController extends Controller
      */
     public function destroy(Distributor $distributor)
     {
-        if ($distributor->with('products')->count() == 0) {
+        $product = Product::join('distributors', 'products.distributor_id','=','distributors.id')->count();
+        
+        if ($product == 0) {
             $distributor->delete();
             return redirect()->back()->with('success', 'Distributor berhasil dihapus');
         }
