@@ -24,8 +24,9 @@
                                             <option data-harga="kosong">Pilih</option>
                                             @foreach ($products as $item)
                                                 <option value="{{$item->id}}" data-harga="{{$item->harga_barang}}"
+                                                    data-stok="{{$item->stok_barang}}"
                                                     {{ old('product_id') == $item->id ? 'selected':'' }}>
-                                                    {{$item->nama_barang}}
+                                                    {{$item->nama_barang}} (stok: {{$item->stok_barang}})
                                                 </option>
                                             @endforeach
                                         </select>
@@ -43,7 +44,7 @@
                                         <p class="text-danger">{{ $errors->first('total_harga') }}</p>
                                     </div>
                                 </div>
-                                <button class="btn btn-primary">Submit</button>
+                                <button class="btn btn-primary" id="sumbit">Submit</button>
                             </form>
                         </div>
                     </div>
@@ -140,10 +141,20 @@
     <script>
         $('select').change(function(){
             let harga = $(this).find(':selected').data('harga')
+                stok = $(this).find(':selected').data('stok')
             
             $('#jumlah_beli').keyup(function(){
                 let jumlah_beli = $('#jumlah_beli').val()
+                let sisa_stok = parseInt(stok) - parseInt(jumlah_beli)
                 let total = parseInt(harga) * parseInt(jumlah_beli)
+
+                if (sisa_stok < 0) {
+                    $('#sumbit').hide()
+                    alert('Stok tidak mencukupi, hanya bisa membeli <= '+stok+" produk")
+                    let total = ""
+                }else{
+                    $('#sumbit').show()
+                }
 
                 if (harga == "kosong") {
                     total = ""

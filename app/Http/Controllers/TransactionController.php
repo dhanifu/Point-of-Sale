@@ -29,7 +29,7 @@ class TransactionController extends Controller
         // $transactions = DB::select("SELECT kd_transaksi FROM transactions GROUP BY kd_transaksi (SELECT * FROM transactions)");
         // dd($transactions);
         
-        $products = Product::orderBy('nama_barang', 'ASC')->get();
+        $products = Product::where('stok_barang', '>', 0)->orderBy('nama_barang', 'ASC')->get();
 
         $con = mysqli_connect('localhost','root','','dshop');
         $sql = mysqli_query($con, 'SELECT * FROM transactions WHERE user_id = '.Auth::user()->id.' GROUP BY kd_transaksi ORDER BY created_at DESC');
@@ -58,18 +58,22 @@ class TransactionController extends Controller
         $total_harga = $request->jumlah_beli * $product->harga_barang;
         $sisa_stok = $product->stok_barang - $request->jumlah_beli;
         
-        Transaction::create([
-            'kd_transaksi' => $kode_transaksi,
-            'product_id' => $request->product_id,
-            'user_id' => $user_id,
-            'jumlah_beli' => $request->jumlah_beli,
-            'total_harga' => $total_harga,
-            'tanggal_beli' => date('Y-m-d')
-        ]);
-        
-        $product->update([
-            'stok_barang' => $sisa_stok
-        ]);
+        if ($request->jumlah_beli > $product->stok_barang){
+            return redirect()->back()->with('error', 'jumlah beli tidak boleh lebih dari stok');
+        }else{
+            Transaction::create([
+                'kd_transaksi' => $kode_transaksi,
+                'product_id' => $request->product_id,
+                'user_id' => $user_id,
+                'jumlah_beli' => $request->jumlah_beli,
+                'total_harga' => $total_harga,
+                'tanggal_beli' => date('Y-m-d')
+            ]);
+
+            $product->update([
+                'stok_barang' => $sisa_stok
+            ]);
+        }
 
         return redirect()->back()->with('success', 'transaksi berhasil');
     }
@@ -100,18 +104,22 @@ class TransactionController extends Controller
         $total_harga = $request->jumlah_beli * $product->harga_barang;
         $sisa_stok = $product->stok_barang - $request->jumlah_beli;
         
-        Transaction::create([
-            'kd_transaksi' => $kode_transaksi,
-            'product_id' => $request->product_id,
-            'user_id' => $user_id,
-            'jumlah_beli' => $request->jumlah_beli,
-            'total_harga' => $total_harga,
-            'tanggal_beli' => date('Y-m-d')
-        ]);
-        
-        $product->update([
-            'stok_barang' => $sisa_stok
-        ]);
+        if ($request->jumlah_beli > $product->stok_barang){
+            return redirect()->back()->with('error', 'jumlah beli tidak boleh lebih dari stok');
+        }else{
+            Transaction::create([
+                'kd_transaksi' => $kode_transaksi,
+                'product_id' => $request->product_id,
+                'user_id' => $user_id,
+                'jumlah_beli' => $request->jumlah_beli,
+                'total_harga' => $total_harga,
+                'tanggal_beli' => date('Y-m-d')
+            ]);
+            
+            $product->update([
+                'stok_barang' => $sisa_stok
+            ]);
+        }
 
         return redirect()->back()->with('success', 'transaksi berhasil');
     }
