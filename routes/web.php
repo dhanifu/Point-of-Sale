@@ -20,6 +20,14 @@ Route::get('', 'HomeController@home')->name('home');
 Route::prefix('manager')->name('manager.')->middleware('role:manager')->group(function(){
     Route::get('', 'HomeController@home')->name('home');
     Route::get('home', 'HomeController@home')->name('home');
+    
+    Route::prefix('users')->name('user.')->group(function(){
+        Route::get('/', 'UserController@index')->name('index');
+        Route::post('/', 'UserController@store')->name('store');
+        Route::get('/edit/{user}', 'UserController@edit')->name('edit');
+        Route::put('/edit/{user}/update', 'UserController@update')->name('update');
+        Route::delete('/{user}/delete', 'UserController@destroy')->name('destroy');
+    });
 
     Route::prefix('product-report')->name('product-report.')->group(function(){
         Route::get('/', 'ReportController@indexProduct')->name('index');
