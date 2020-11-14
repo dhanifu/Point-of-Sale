@@ -7,6 +7,12 @@
         </li>
 
         @role('manager')
+        <li class="nav-title">USER</li>
+        <li class="nav-item">
+            <a class="nav-link @if(request()->routeIs('manager.user.*')) active @endif" href="{{route('manager.user.index')}}">
+                <i class="nav-icon icon-drop"></i> User
+            </a>
+        </li>
         <li class="nav-title">REPORT</li>
         <li class="nav-item">
             <a class="nav-link" href="{{route('manager.product-report.index')}}">
